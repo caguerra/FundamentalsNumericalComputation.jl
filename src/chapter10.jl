@@ -2,7 +2,7 @@
     shoot(ϕ,xspan,g₁,g₂,init)
 
 Shooting method to solve a two-point boundary value problem with
-ODE u'' = `ϕ`(x,u,u') for x in `xspan`, left boundary condition 
+ODE u'' = `ϕ`(x,u,u') for x in `xspan`, left boundary condition
 `g₁`(u,u')=0, and right boundary condition `g₂`(u,u')=0. The
 value `init` is an initial estimate for vector [u,u'] at x=a.
 
@@ -24,8 +24,8 @@ function shoot(ϕ,xspan,g₁,g₂,init,tol=1e-5)
     x = [];  y = [];   # these values will be overwritten
     s = levenberg(objective,init,xtol=tol)[:,end]
 
-    # Use the stored last solution of the IVP. 
-    u,du_dx = eachrow(y) 
+    # Use the stored last solution of the IVP.
+    u, du_dx = y[1,:], y[2,:]
     return x,u,du_dx
 end
 
@@ -71,7 +71,7 @@ first and second derivatives.
 """
 function diffcheb(n,xspan)
     x = [ -cos( k*π/n ) for k in 0:n ]    # nodes in [-1,1]
-    
+
     # Off-diagonal entries.
     c = [2; ones(n-1); 2];    # endpoint factors
     dij = (i,j) -> (-1)^(i+j)*c[i+1]/(c[j+1]*(x[i+1]-x[j+1]))
@@ -123,11 +123,11 @@ end
     bvp(ϕ,xspan,lval,lder,rval,rder,init)
 
 Finite differences to solve a two-point boundary value problem with
-ODE u'' = `ϕ`(x,u,u') for x in `xspan`, left boundary condition 
-`g₁`(u,u')=0, and right boundary condition `g₂`(u,u')=0. The value 
+ODE u'' = `ϕ`(x,u,u') for x in `xspan`, left boundary condition
+`g₁`(u,u')=0, and right boundary condition `g₂`(u,u')=0. The value
 `init` is an initial estimate for the values of the solution u at
 equally spaced values of x, which also sets the number of nodes.
-    
+
 Returns vectors for the nodes and the values of u.
 """
 function bvp(ϕ,xspan,g₁,g₂,init)
@@ -136,7 +136,7 @@ function bvp(ϕ,xspan,g₁,g₂,init)
     h = x[2]-x[1]
 
     function residual(u)
-        # Residual of the ODE at the nodes. 
+        # Residual of the ODE at the nodes.
         du_dx = Dₓ*u                   # discrete u'
         d2u_dx2 = Dₓₓ*u                # discrete u''
         f = d2u_dx2 - ϕ.(x,u,du_dx)
@@ -146,7 +146,7 @@ function bvp(ϕ,xspan,g₁,g₂,init)
         f[n+1] = g₂(u[n+1],du_dx[n+1])/h
         return f
     end
-    
+
     u = levenberg(residual,init)
     return x,u[end]
 end
